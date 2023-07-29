@@ -49,19 +49,22 @@ class JUnitXMLParser < TestParser
           status = :passed
           failure = nil
         else
-          status = :failed
-          failure_msg = failure_xml.attribute('message') || failure_xml.attribute('type')
-          failure_msg = failure_msg.value if failure_msg
-          failure_trace = (failure_xml.texts.map {|t| t.value }).join('').strip
-          failure = TestResult::Failure.new(
-            nil,
-            nil,
-            failure_msg,
-            failure_trace
-          )
+          next
+          # status = :failed
+          # failure_msg = failure_xml.attribute('message') || failure_xml.attribute('type')
+          # failure_msg = failure_msg.value if failure_msg
+          # failure_trace = (failure_xml.texts.map {|t| t.value }).join('').strip
+          # failure = TestResult::Failure.new(
+          #   nil,
+          #   nil,
+          #   failure_msg,
+          #   failure_trace,
+          #   "dummy-class",
+          #   "dummy-method"
+          # )
         end
 
-        tr = TestResult.new(name, status, tc.attribute('time').value.to_f, failure)
+        tr = TestResult.new(name, status, tc.attribute('time').value.to_f, failure, tc.attribute('classname').to_s.split('.').last, tc.attribute('name').to_s)
         yield tr
       }
 

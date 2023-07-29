@@ -22,7 +22,7 @@ class BuildFailedParser < TestParser
 
           name = underscore_to_ucamelcase(name) if @is_luc
 
-          yield TestResult.new(name, what_failed, 0)
+          yield TestResult.new(name, what_failed, 0, nil, "dummy-class", "dummy-method")
         }
       }
     rescue Errno::ENOENT => e
