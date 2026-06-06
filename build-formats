@@ -82,5 +82,5 @@ if [ "$TARGET" = cpp_stl_11 ] || [ "$TARGET" = all ]; then
 		--read-write \
 		--import-path "$FORMATS_REPO_DIR" \
 		--import-path "$FORMATS_KSY_DIR/ks_path" \
-		"$FORMATS_KSY_DIR"_rw/hello_world_write.ksy || :
+		"$FORMATS_KSY_DIR"_rw/*.ksy || :
 fi
