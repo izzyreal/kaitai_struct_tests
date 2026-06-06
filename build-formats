@@ -3,11 +3,23 @@
 . "$(dirname "$0")/config"
 
 TARGET="${1:-all}"
+COMPILER_TARGET="$TARGET"
+CPP_STANDARD_ARGS=
 
 if [ "$TARGET" = all ]; then
     OUTPUT_DIR="$FORMATS_COMPILED_DIR"
 else
     OUTPUT_DIR="$FORMATS_COMPILED_DIR/$TARGET"
+fi
+
+if [ "$TARGET" = cpp_stl_11 ]; then
+    COMPILER_TARGET=cpp_stl
+    CPP_STANDARD_ARGS="--cpp-standard 11"
+fi
+
+if [ "$TARGET" = cpp_stl_98 ]; then
+    COMPILER_TARGET=cpp_stl
+    CPP_STANDARD_ARGS="--cpp-standard 98"
 fi
 
 rm -rf "$OUTPUT_DIR"
@@ -16,7 +28,7 @@ mkdir -p "$OUTPUT_DIR"
 # 	--java-from-file-class io.kaitai.struct.RandomAccessFileKaitaiStream \
 
 "$COMPILER_DIR/jvm/target/universal/stage/bin/kaitai-struct-compiler" -- \
-	--verbose file -t "$TARGET" -d "$OUTPUT_DIR" \
+	--verbose file -t "$COMPILER_TARGET" $CPP_STANDARD_ARGS -d "$OUTPUT_DIR" \
 	--import-path "$FORMATS_REPO_DIR" \
 	--import-path "$FORMATS_KSY_DIR/ks_path" \
 	--java-package io.kaitai.struct.testformats \
@@ -58,4 +70,17 @@ if [ "$TARGET" = python ] || [ "$TARGET" = all ]; then
 
 	# See the comment above about why we are creating this empty `__init__.py` file.
 	touch "$FORMATS_COMPILED_DIR/python/testwrite/__init__.py"
+fi
+
+if [ "$TARGET" = cpp_stl_11 ] || [ "$TARGET" = all ]; then
+	rm -rf "$FORMATS_COMPILED_DIR/cpp_stl_11_write"
+	mkdir -p "$FORMATS_COMPILED_DIR/cpp_stl_11_write"
+
+	"$COMPILER_DIR/jvm/target/universal/stage/bin/kaitai-struct-compiler" -- \
+		--verbose file -t cpp_stl --cpp-standard 11 -d "$FORMATS_COMPILED_DIR/cpp_stl_11_write" \
+		--no-auto-read \
+		--read-write \
+		--import-path "$FORMATS_REPO_DIR" \
+		--import-path "$FORMATS_KSY_DIR/ks_path" \
+		"$FORMATS_KSY_DIR"_rw/hello_world_write.ksy || :
 fi

@@ -15,6 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(RUNTIME_SRC_PATH ../../../runtime/cpp_stl)
 set(PREREQ_PATH prereq)
+set(KS_RW_PATH "${KS_PATH}_write")
 
 include(${INC_PATH})
 
@@ -28,15 +29,23 @@ set(RUNTIME_SOURCES
 	${RUNTIME_SRC_PATH}/kaitai/kaitaistream.cpp
 )
 
+set(RW_SOURCES)
+if (EXISTS "${KS_RW_PATH}/hello_world_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/hello_world_write.cpp")
+	add_compile_definitions(KS_HAS_RW_HELLO_WORLD=1)
+endif()
+
 add_executable (ks_tests
 	${RUNTIME_SOURCES}
 	${PREREQ_SOURCES}
+	${RW_SOURCES}
 	${DISPOSABLE_SOURCES}
 )
 
 include_directories(
 	"${PROJECT_BINARY_DIR}"
 	"${KS_PATH}"
+	"${KS_RW_PATH}"
 	"${RUNTIME_SRC_PATH}"
 	"${PREREQ_PATH}"
 	"${ZLIB_INCLUDE_DIRS}"
@@ -69,6 +78,6 @@ target_compile_options(ks_tests PRIVATE
 	>
 )
 
-add_test(ks_tests ks_tests)
+add_test(NAME ks_tests COMMAND $<TARGET_FILE:ks_tests>)
 
 enable_testing()
