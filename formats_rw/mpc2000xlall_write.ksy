@@ -330,6 +330,81 @@ types:
       - id: variation_type_bit_2
         type: b1
 
+  pitch_bend_event:
+    seq:
+      - id: amount_bits_1
+        type: b8
+      - id: amount_bits_2
+        type: b8
+      - size: 1
+
+  control_change_event:
+    seq:
+      - id: controller
+        type: u1
+      - id: value
+        type: u1
+        valid:
+          min: 0
+          max: 127
+      - size: 1
+
+  program_change_event:
+    seq:
+      - id: program
+        type: u1
+        valid:
+          min: 0
+          max: 127
+      - size: 2
+
+  ch_pressure_event:
+    seq:
+      - id: pressure
+        type: u1
+        valid:
+          min: 0
+          max: 127
+      - size: 2
+
+  poly_pressure_event:
+    seq:
+      - id: note
+        type: u1
+        valid:
+          min: 0
+          max: 127
+      - id: pressure
+        type: u1
+        valid:
+          min: 0
+          max: 127
+      - size: 1
+
+  mixer_event:
+    seq:
+      - size: 3
+      - id: param
+        type: u1
+      - id: pad_index
+        type: u1
+      - id: value
+        type: u1
+        valid:
+          min: 0
+          max: 100
+      - size: 2
+
+  exclusive_event:
+    seq:
+      - size: 3
+      - id: bytes
+        size: 2
+      - id: mixer
+        type: mixer_event
+        if: bytes == [0xF0, 0x47]
+      - size: 14
+
   event:
     seq:
       - id: tick
@@ -349,6 +424,24 @@ types:
       - id: note_event
         type: note_event
         if: tick < 0xFFFFF and id <= 0x7F
+      - id: pitch_bend
+        type: pitch_bend_event
+        if: tick < 0xFFFFF and id == 0xE0
+      - id: control_change
+        type: control_change_event
+        if: tick < 0xFFFFF and id == 0xB0
+      - id: program_change
+        type: program_change_event
+        if: tick < 0xFFFFF and id == 0xC0
+      - id: ch_pressure
+        type: ch_pressure_event
+        if: tick < 0xFFFFF and id == 0xD0
+      - id: poly_pressure
+        type: poly_pressure_event
+        if: tick < 0xFFFFF and id == 0xA0
+      - id: exclusive
+        type: exclusive_event
+        if: tick < 0xFFFFF and id == 0xF0
       - id: terminator
         if: tick >= 0xFFFFF
         size: 5
