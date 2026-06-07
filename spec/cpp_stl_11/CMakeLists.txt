@@ -106,6 +106,18 @@ if (EXISTS "${KS_RW_PATH}/switch_user_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/switch_user_write.cpp")
 	add_compile_definitions(KS_HAS_RW_SWITCH_USER=1)
 endif()
+if (EXISTS "${KS_RW_PATH}/params_stateful_switch_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/params_stateful_switch_write.cpp")
+	add_compile_definitions(KS_HAS_RW_PARAMS_STATEFUL_SWITCH=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/io_lookahead_switch_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/io_lookahead_switch_write.cpp")
+	add_compile_definitions(KS_HAS_RW_IO_LOOKAHEAD_SWITCH=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/running_status_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/running_status_write.cpp")
+	add_compile_definitions(KS_HAS_RW_RUNNING_STATUS=1)
+endif()
 
 set(RW_TEST_SOURCES
 	test_hello_world_write.cpp
@@ -127,6 +139,9 @@ set(RW_TEST_SOURCES
 	test_repeat_eos_raw_substream_write.cpp
 	test_repeat_until_raw_substream_write.cpp
 	test_switch_user_write.cpp
+	test_params_stateful_switch_write.cpp
+	test_io_lookahead_switch_write.cpp
+	test_running_status_write.cpp
 )
 
 add_executable (ks_tests
