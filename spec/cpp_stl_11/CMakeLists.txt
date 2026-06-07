@@ -118,6 +118,18 @@ if (EXISTS "${KS_RW_PATH}/running_status_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/running_status_write.cpp")
 	add_compile_definitions(KS_HAS_RW_RUNNING_STATUS=1)
 endif()
+if (EXISTS "${KS_RW_PATH}/mpc2000snd_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc2000snd_write.cpp")
+	add_compile_definitions(KS_HAS_RW_MPC2000SND=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/mpc2000pgm_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc2000pgm_write.cpp")
+	add_compile_definitions(KS_HAS_RW_MPC2000PGM=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/mpc2000aps_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc2000aps_write.cpp")
+	add_compile_definitions(KS_HAS_RW_MPC2000APS=1)
+endif()
 
 set(RW_TEST_SOURCES
 	test_hello_world_write.cpp
@@ -142,6 +154,9 @@ set(RW_TEST_SOURCES
 	test_params_stateful_switch_write.cpp
 	test_io_lookahead_switch_write.cpp
 	test_running_status_write.cpp
+	test_mpc2000snd_write.cpp
+	test_mpc2000pgm_write.cpp
+	test_mpc2000aps_write.cpp
 )
 
 add_executable (ks_tests

@@ -1,0 +1,169 @@
+meta:
+  id: mpc2000pgm_write
+
+enums:
+  sound_generation_mode:
+    0: normal
+    1: simult
+    2: vel_sw
+  voice_overlap_mode:
+    0: poly
+    1: mono
+    2: note_off
+  decay_mode:
+    0: end
+    1: start
+  slider_parameter:
+    0: tuning
+    1: decay
+    2: attack
+    3: filter
+  fx_output:
+    0: none
+    1: m1
+    2: m2
+
+types:
+  slider:
+    seq:
+      - id: note
+        type: u1
+      - id: tune_low
+        type: s1
+      - id: tune_high
+        type: s1
+      - id: decay_low
+        type: s1
+      - id: decay_high
+        type: s1
+      - id: attack_low
+        type: s1
+      - id: attack_high
+        type: s1
+      - id: filter_low
+        type: s1
+      - id: filter_high
+        type: s1
+
+  note:
+    seq:
+      - id: sound_index
+        type: u1
+      - id: sound_generation_mode
+        type: u1
+        enum: sound_generation_mode
+      - id: velocity_range_lower
+        type: u1
+      - id: also_play_use_note_1
+        type: u1
+      - id: velocity_range_upper
+        type: u1
+      - id: also_play_use_note_2
+        type: u1
+      - id: voice_overlap_mode
+        type: u1
+        enum: voice_overlap_mode
+      - id: mute_assign_1
+        type: u1
+      - id: mute_assign_2
+        type: u1
+      - id: tune
+        type: s2le
+      - id: attack
+        type: u1
+      - id: decay
+        type: u1
+      - id: decay_mode
+        type: u1
+        enum: decay_mode
+      - id: cutoff
+        type: u1
+      - id: resonance
+        type: u1
+      - id: velocity_envelope_to_filter_attack
+        type: u1
+      - id: velocity_envelope_to_filter_decay
+        type: u1
+      - id: velocity_envelope_to_filter_amount
+        type: u1
+      - id: velocity_to_level
+        type: u1
+      - id: velocity_to_attack
+        type: u1
+      - id: velocity_to_start
+        type: u1
+      - id: velocity_to_cutoff
+        type: u1
+      - id: slider_parameter
+        type: u1
+        enum: slider_parameter
+      - id: velocity_to_pitch
+        type: u1
+
+  pad_mixer:
+    seq:
+      - id: fx_output
+        type: u1
+        enum: fx_output
+      - id: volume
+        type: u1
+      - id: pan
+        type: u1
+      - id: volume_individual
+        type: u1
+      - id: output
+        type: u1
+      - id: effects_send_level
+        type: u1
+
+seq:
+  - id: magic
+    contents: [0x07, 0x04]
+
+  - id: sound_count
+    type: u2le
+
+  - id: sound_names
+    type: str
+    encoding: ASCII
+    repeat: expr
+    repeat-expr: sound_count
+    size: 17
+
+  - size: 1
+
+  - id: name
+    type: str
+    size: 16
+    encoding: ASCII
+
+  - size: 2
+
+  - id: slider
+    type: slider
+
+  - id: program_change
+    type: u1
+
+  - size: 5
+
+  - id: note_parameters
+    type: note
+    repeat: expr
+    repeat-expr: 64
+
+  - size: 1
+
+  - id: pad_mixers
+    type: pad_mixer
+    repeat: expr
+    repeat-expr: 64
+
+  - size: 3
+
+  - id: pad_to_note_mapping
+    type: s1
+    repeat: expr
+    repeat-expr: 64
+
+  - size: 200
