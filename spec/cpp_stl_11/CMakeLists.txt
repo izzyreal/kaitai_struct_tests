@@ -66,11 +66,54 @@ if (EXISTS "${KS_RW_PATH}/repeat_eos_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/repeat_eos_write.cpp")
 	add_compile_definitions(KS_HAS_RW_REPEAT_EOS=1)
 endif()
+if (EXISTS "${KS_RW_PATH}/bits_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/bits_write.cpp")
+	add_compile_definitions(KS_HAS_RW_BITS_WRITE=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/bits_write_le.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/bits_write_le.cpp")
+	add_compile_definitions(KS_HAS_RW_BITS_WRITE_LE=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/pos_instance_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/pos_instance_write.cpp")
+	add_compile_definitions(KS_HAS_RW_POS_INSTANCE=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/io_pos_instance_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/io_pos_instance_write.cpp")
+	add_compile_definitions(KS_HAS_RW_IO_POS_INSTANCE=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/raw_substream_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/raw_substream_write.cpp")
+	add_compile_definitions(KS_HAS_RW_RAW_SUBSTREAM=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/raw_substream_sized_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/raw_substream_sized_write.cpp")
+	add_compile_definitions(KS_HAS_RW_RAW_SUBSTREAM_SIZED=1)
+endif()
+
+set(RW_TEST_SOURCES
+	test_hello_world_write.cpp
+	test_fixed_record_write.cpp
+	test_nested_record_write.cpp
+	test_repeat_expr_write.cpp
+	test_repeat_expr_bytes_write.cpp
+	test_repeat_expr_user_write.cpp
+	test_if_write.cpp
+	test_repeat_until_write.cpp
+	test_repeat_eos_write.cpp
+	test_bits_write.cpp
+	test_bits_write_le.cpp
+	test_pos_instance_write.cpp
+	test_io_pos_instance_write.cpp
+	test_raw_substream_write.cpp
+	test_raw_substream_sized_write.cpp
+)
 
 add_executable (ks_tests
 	${RUNTIME_SOURCES}
 	${PREREQ_SOURCES}
 	${RW_SOURCES}
+	${RW_TEST_SOURCES}
 	${DISPOSABLE_SOURCES}
 )
 
