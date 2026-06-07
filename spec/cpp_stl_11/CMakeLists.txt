@@ -102,6 +102,10 @@ if (EXISTS "${KS_RW_PATH}/repeat_until_raw_substream_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/repeat_until_raw_substream_write.cpp")
 	add_compile_definitions(KS_HAS_RW_REPEAT_UNTIL_RAW_SUBSTREAM=1)
 endif()
+if (EXISTS "${KS_RW_PATH}/switch_user_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/switch_user_write.cpp")
+	add_compile_definitions(KS_HAS_RW_SWITCH_USER=1)
+endif()
 
 set(RW_TEST_SOURCES
 	test_hello_world_write.cpp
@@ -122,6 +126,7 @@ set(RW_TEST_SOURCES
 	test_repeat_expr_raw_substream_write.cpp
 	test_repeat_eos_raw_substream_write.cpp
 	test_repeat_until_raw_substream_write.cpp
+	test_switch_user_write.cpp
 )
 
 add_executable (ks_tests
