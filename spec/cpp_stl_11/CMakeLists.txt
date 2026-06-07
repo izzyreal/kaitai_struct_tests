@@ -134,6 +134,10 @@ if (EXISTS "${KS_RW_PATH}/mpc3000seq_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc3000seq_write.cpp")
 	add_compile_definitions(KS_HAS_RW_MPC3000SEQ=1)
 endif()
+if (EXISTS "${KS_RW_PATH}/mpc60all_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc60all_write.cpp")
+	add_compile_definitions(KS_HAS_RW_MPC60ALL=1)
+endif()
 if (EXISTS "${KS_RW_PATH}/vlq_base128_be_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/vlq_base128_be_write.cpp")
 	add_compile_definitions(KS_HAS_RW_VLQ_BASE128_BE=1)
@@ -145,6 +149,10 @@ endif()
 if (EXISTS "${KS_RW_PATH}/mpc2000mid_write.cpp")
 	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc2000mid_write.cpp")
 	add_compile_definitions(KS_HAS_RW_MPC2000MID=1)
+endif()
+if (EXISTS "${KS_RW_PATH}/mpc2000xlall_write.cpp")
+	list(APPEND RW_SOURCES "${KS_RW_PATH}/mpc2000xlall_write.cpp")
+	add_compile_definitions(KS_HAS_RW_MPC2000XLALL=1)
 endif()
 
 set(RW_TEST_SOURCES
@@ -174,6 +182,7 @@ set(RW_TEST_SOURCES
 	test_mpc2000pgm_write.cpp
 	test_mpc2000aps_write.cpp
 	test_mpc2000mid_write.cpp
+	test_mpc2000xlall_write.cpp
 	test_mpc3000seq_write.cpp
 )
 
