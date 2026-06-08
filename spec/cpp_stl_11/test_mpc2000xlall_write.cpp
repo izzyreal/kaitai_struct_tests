@@ -137,6 +137,23 @@ std::unique_ptr<mpc2000xlall_write_t::event_t> make_note_event() {
     return event;
 }
 
+std::unique_ptr<mpc2000xlall_write_t::event_t> make_boundary_note_event() {
+    std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
+    event->set_tick(12);
+    event->set_duration_bits_1(0xA);
+    event->set_track(63);
+    event->set_duration_bits_2(0x3);
+    event->set_id(0x7F);
+    std::unique_ptr<mpc2000xlall_write_t::note_event_t> note(new mpc2000xlall_write_t::note_event_t(nullptr));
+    note->set_duration_bits_3(0x7F);
+    note->set_velocity(127);
+    note->set_variation_type_bit_1(true);
+    note->set_variation_value(127);
+    note->set_variation_type_bit_2(true);
+    event->set_note_event(std::move(note));
+    return event;
+}
+
 std::unique_ptr<mpc2000xlall_write_t::event_t> make_control_change_event() {
     std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
     event->set_tick(24);
@@ -149,6 +166,23 @@ std::unique_ptr<mpc2000xlall_write_t::event_t> make_control_change_event() {
     cc->set_value(100);
     cc->set__unnamed2(std::string(1, '\x00'));
     event->set_control_change(std::move(cc));
+    return event;
+}
+
+std::unique_ptr<mpc2000xlall_write_t::event_t> make_short_sequence_note_event() {
+    std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
+    event->set_tick(48);
+    event->set_duration_bits_1(0);
+    event->set_track(1);
+    event->set_duration_bits_2(0);
+    event->set_id(48);
+    std::unique_ptr<mpc2000xlall_write_t::note_event_t> note(new mpc2000xlall_write_t::note_event_t(nullptr));
+    note->set_duration_bits_3(36);
+    note->set_velocity(90);
+    note->set_variation_type_bit_1(false);
+    note->set_variation_value(12);
+    note->set_variation_type_bit_2(false);
+    event->set_note_event(std::move(note));
     return event;
 }
 
@@ -176,6 +210,20 @@ std::unique_ptr<mpc2000xlall_write_t::event_t> make_program_change_event() {
     event->set_id(0xc0);
     std::unique_ptr<mpc2000xlall_write_t::program_change_event_t> program(new mpc2000xlall_write_t::program_change_event_t(nullptr));
     program->set_program(12);
+    program->set__unnamed1(std::string(2, '\x00'));
+    event->set_program_change(std::move(program));
+    return event;
+}
+
+std::unique_ptr<mpc2000xlall_write_t::event_t> make_short_sequence_program_change_event() {
+    std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
+    event->set_tick(144);
+    event->set_duration_bits_1(0);
+    event->set_track(1);
+    event->set_duration_bits_2(0);
+    event->set_id(0xc0);
+    std::unique_ptr<mpc2000xlall_write_t::program_change_event_t> program(new mpc2000xlall_write_t::program_change_event_t(nullptr));
+    program->set_program(34);
     program->set__unnamed1(std::string(2, '\x00'));
     event->set_program_change(std::move(program));
     return event;
@@ -232,6 +280,21 @@ std::unique_ptr<mpc2000xlall_write_t::event_t> make_exclusive_event() {
     return event;
 }
 
+std::unique_ptr<mpc2000xlall_write_t::event_t> make_exclusive_event_without_mixer() {
+    std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
+    event->set_tick(95);
+    event->set_duration_bits_1(0);
+    event->set_track(0);
+    event->set_duration_bits_2(0);
+    event->set_id(0xf0);
+    std::unique_ptr<mpc2000xlall_write_t::exclusive_event_t> exclusive(new mpc2000xlall_write_t::exclusive_event_t(nullptr));
+    exclusive->set__unnamed0(std::string(3, '\x00'));
+    exclusive->set_bytes(std::string("\x01\x02", 2));
+    exclusive->set__unnamed3(std::string(14, '\x00'));
+    event->set_exclusive(std::move(exclusive));
+    return event;
+}
+
 std::unique_ptr<mpc2000xlall_write_t::event_t> make_terminator_event() {
     std::unique_ptr<mpc2000xlall_write_t::event_t> event(new mpc2000xlall_write_t::event_t(nullptr));
     event->set_tick(0xfffff);
@@ -249,6 +312,60 @@ std::unique_ptr<mpc2000xlall_write_t::tracks_t> make_tracks() {
     tracks->set_status(make_track_statuses(64));
     tracks->set_unknown(std::string(64, '\x00'));
     return tracks;
+}
+
+std::unique_ptr<mpc2000xlall_write_t::sequence_body_t> make_minimal_sequence_body(uint8_t index, uint16_t bar_count, uint32_t last_tick) {
+    std::unique_ptr<mpc2000xlall_write_t::sequence_body_t> body(new mpc2000xlall_write_t::sequence_body_t(nullptr));
+    body->set_is_used(1);
+    body->set_index(index);
+    body->set__unnamed2(std::string(7, '\x00'));
+    body->set_bar_count(bar_count);
+    body->set_last_tick(last_tick);
+    body->set__unnamed5(std::string(16, '\x00'));
+    body->set_loop_start_bar_index(0);
+    body->set_loop_end_bar_index(bar_count - 1);
+    body->set_loop_enabled(false);
+    body->set__unnamed9(0);
+
+    std::unique_ptr<mpc2000xlall_write_t::sequence_body_t::start_time_t> start_time(
+        new mpc2000xlall_write_t::sequence_body_t::start_time_t(nullptr));
+    start_time->set_hours(0);
+    start_time->set_minutes(0);
+    start_time->set_seconds(0);
+    start_time->set_frames(0);
+    start_time->set_frame_decimals(0);
+    body->set_start_time(std::move(start_time));
+
+    body->set__unnamed11(std::string(6, '\x00'));
+    body->set_last_tick2(last_tick);
+    body->set__unnamed13(std::string(52, '\x00'));
+    body->set_device_names(make_ascii_strings(33, 8, "DEV"));
+    body->set_tracks(make_tracks());
+    body->set__unnamed16(std::string(3587, '\x00'));
+
+    std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>> bars(
+        new std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>());
+    for (uint16_t i = 0; i < bar_count; ++i) {
+        bars->push_back(make_bar(i, static_cast<uint64_t>((i + 1) * 96)));
+    }
+    body->set_bars(std::move(bars));
+
+    std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>> remaining_bars(
+        new std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>());
+    for (int i = bar_count; i < 999; ++i) {
+        remaining_bars->push_back(make_bar(i, last_tick));
+    }
+    body->set__unnamed18(std::move(remaining_bars));
+    body->set__unnamed19(std::string(865, '\x00'));
+
+    std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>> events(
+        new std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>());
+    events->push_back(make_short_sequence_note_event());
+    events->push_back(make_short_sequence_program_change_event());
+    events->push_back(make_terminator_event());
+    body->set_events(std::move(events));
+
+    return body;
 }
 
 }  // namespace
@@ -433,17 +550,30 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>> events(
         new std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>());
     events->push_back(make_note_event());
+    events->push_back(make_boundary_note_event());
     events->push_back(make_control_change_event());
     events->push_back(make_pitch_bend_event());
     events->push_back(make_program_change_event());
     events->push_back(make_ch_pressure_event());
     events->push_back(make_poly_pressure_event());
+    events->push_back(make_exclusive_event_without_mixer());
     events->push_back(make_exclusive_event());
     events->push_back(make_terminator_event());
     body->set_events(std::move(events));
 
     sequence->set_body(std::move(body));
     sequences->push_back(std::move(sequence));
+
+    std::unique_ptr<mpc2000xlall_write_t::sequence_t> short_named_sequence(new mpc2000xlall_write_t::sequence_t(nullptr));
+    short_named_sequence->set_name_part_1("SHORT");
+    short_named_sequence->set_name_part_2("");
+    short_named_sequence->set_body(make_minimal_sequence_body(2, 2, 192));
+    sequences->push_back(std::move(short_named_sequence));
+
+    std::unique_ptr<mpc2000xlall_write_t::sequence_t> empty_sequence(new mpc2000xlall_write_t::sequence_t(nullptr));
+    empty_sequence->set_name_part_1("");
+    sequences->push_back(std::move(empty_sequence));
+
     root.set_sequences(std::move(sequences));
 
     std::stringstream out(std::ios::in | std::ios::out | std::ios::binary);
@@ -470,7 +600,7 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_REQUIRE_EQUAL(parsed.songs()->size(), 20U);
     BOOST_CHECK(parsed.songs()->at(0)->is_used());
 
-    BOOST_REQUIRE_EQUAL(parsed.sequences()->size(), 1U);
+    BOOST_REQUIRE_EQUAL(parsed.sequences()->size(), 3U);
     auto* parsed_sequence = parsed.sequences()->at(0).get();
     BOOST_CHECK_EQUAL(parsed_sequence->name_part_1(), "SEQPART1");
     BOOST_CHECK_EQUAL(parsed_sequence->name_part_2(), "SEQPART2");
@@ -480,7 +610,36 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_CHECK_EQUAL(parsed_sequence->body()->bars()->at(0)->last_tick(), 96U);
     BOOST_REQUIRE(parsed_sequence->body()->tracks() != nullptr);
     BOOST_CHECK_EQUAL(parsed_sequence->body()->tracks()->names()->at(0), std::string("TRK0", 4) + std::string(12, '\x00'));
-    BOOST_REQUIRE_EQUAL(parsed_sequence->body()->events()->size(), 8U);
+    BOOST_REQUIRE_EQUAL(parsed_sequence->body()->events()->size(), 10U);
+
+    auto* parsed_short_named_sequence = parsed.sequences()->at(1).get();
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->name_part_1(), "SHORT");
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->name_part_2(), "");
+    BOOST_CHECK(!parsed_short_named_sequence->_is_null_name_part_2());
+    BOOST_REQUIRE(parsed_short_named_sequence->body() != nullptr);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->bar_count(), 2);
+    BOOST_REQUIRE_EQUAL(parsed_short_named_sequence->body()->bars()->size(), 2U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->bars()->at(0)->last_tick(), 96U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->bars()->at(1)->last_tick(), 192U);
+    BOOST_REQUIRE_EQUAL(parsed_short_named_sequence->body()->events()->size(), 3U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->tick(), 48U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->track(), 1U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->id(), 48);
+    BOOST_REQUIRE(parsed_short_named_sequence->body()->events()->at(0)->note_event() != nullptr);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->note_event()->duration_bits_3(), 36U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->note_event()->velocity(), 90U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(0)->note_event()->variation_value(), 12U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(1)->tick(), 144U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(1)->track(), 1U);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(1)->id(), 0xc0);
+    BOOST_REQUIRE(parsed_short_named_sequence->body()->events()->at(1)->program_change() != nullptr);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(1)->program_change()->program(), 34);
+    BOOST_CHECK_EQUAL(parsed_short_named_sequence->body()->events()->at(2)->tick(), 0xfffffU);
+
+    auto* parsed_empty_sequence = parsed.sequences()->at(2).get();
+    BOOST_CHECK_EQUAL(parsed_empty_sequence->name_part_1(), "");
+    BOOST_CHECK(parsed_empty_sequence->_is_null_name_part_2());
+    BOOST_CHECK(parsed_empty_sequence->_is_null_body());
 
     auto* first_event = parsed_sequence->body()->events()->at(0).get();
     BOOST_CHECK_EQUAL(first_event->tick(), 0U);
@@ -490,43 +649,62 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_CHECK_EQUAL(first_event->note_event()->velocity(), 100U);
 
     auto* second_event = parsed_sequence->body()->events()->at(1).get();
-    BOOST_CHECK_EQUAL(second_event->id(), 0xb0);
-    BOOST_REQUIRE(second_event->control_change() != nullptr);
-    BOOST_CHECK_EQUAL(second_event->control_change()->controller(), 7);
-    BOOST_CHECK_EQUAL(second_event->control_change()->value(), 100);
+    BOOST_CHECK_EQUAL(second_event->tick(), 12U);
+    BOOST_CHECK_EQUAL(second_event->duration_bits_1(), 0xAU);
+    BOOST_CHECK_EQUAL(second_event->track(), 63U);
+    BOOST_CHECK_EQUAL(second_event->duration_bits_2(), 0x3U);
+    BOOST_CHECK_EQUAL(second_event->id(), 0x7f);
+    BOOST_REQUIRE(second_event->note_event() != nullptr);
+    BOOST_CHECK_EQUAL(second_event->note_event()->duration_bits_3(), 0x7fU);
+    BOOST_CHECK_EQUAL(second_event->note_event()->velocity(), 127U);
+    BOOST_CHECK_EQUAL(second_event->note_event()->variation_type_bit_1(), true);
+    BOOST_CHECK_EQUAL(second_event->note_event()->variation_value(), 127U);
+    BOOST_CHECK_EQUAL(second_event->note_event()->variation_type_bit_2(), true);
 
     auto* third_event = parsed_sequence->body()->events()->at(2).get();
-    BOOST_CHECK_EQUAL(third_event->id(), 0xe0);
-    BOOST_REQUIRE(third_event->pitch_bend() != nullptr);
-    BOOST_CHECK_EQUAL(third_event->pitch_bend()->amount_bits_1(), 0U);
-    BOOST_CHECK_EQUAL(third_event->pitch_bend()->amount_bits_2(), 64U);
+    BOOST_CHECK_EQUAL(third_event->id(), 0xb0);
+    BOOST_REQUIRE(third_event->control_change() != nullptr);
+    BOOST_CHECK_EQUAL(third_event->control_change()->controller(), 7);
+    BOOST_CHECK_EQUAL(third_event->control_change()->value(), 100);
 
     auto* fourth_event = parsed_sequence->body()->events()->at(3).get();
-    BOOST_CHECK_EQUAL(fourth_event->id(), 0xc0);
-    BOOST_REQUIRE(fourth_event->program_change() != nullptr);
-    BOOST_CHECK_EQUAL(fourth_event->program_change()->program(), 12);
+    BOOST_CHECK_EQUAL(fourth_event->id(), 0xe0);
+    BOOST_REQUIRE(fourth_event->pitch_bend() != nullptr);
+    BOOST_CHECK_EQUAL(fourth_event->pitch_bend()->amount_bits_1(), 0U);
+    BOOST_CHECK_EQUAL(fourth_event->pitch_bend()->amount_bits_2(), 64U);
 
     auto* fifth_event = parsed_sequence->body()->events()->at(4).get();
-    BOOST_CHECK_EQUAL(fifth_event->id(), 0xd0);
-    BOOST_REQUIRE(fifth_event->ch_pressure() != nullptr);
-    BOOST_CHECK_EQUAL(fifth_event->ch_pressure()->pressure(), 70);
+    BOOST_CHECK_EQUAL(fifth_event->id(), 0xc0);
+    BOOST_REQUIRE(fifth_event->program_change() != nullptr);
+    BOOST_CHECK_EQUAL(fifth_event->program_change()->program(), 12);
 
     auto* sixth_event = parsed_sequence->body()->events()->at(5).get();
-    BOOST_CHECK_EQUAL(sixth_event->id(), 0xa0);
-    BOOST_REQUIRE(sixth_event->poly_pressure() != nullptr);
-    BOOST_CHECK_EQUAL(sixth_event->poly_pressure()->note(), 64);
-    BOOST_CHECK_EQUAL(sixth_event->poly_pressure()->pressure(), 80);
+    BOOST_CHECK_EQUAL(sixth_event->id(), 0xd0);
+    BOOST_REQUIRE(sixth_event->ch_pressure() != nullptr);
+    BOOST_CHECK_EQUAL(sixth_event->ch_pressure()->pressure(), 70);
 
     auto* seventh_event = parsed_sequence->body()->events()->at(6).get();
-    BOOST_CHECK_EQUAL(seventh_event->id(), 0xf0);
-    BOOST_REQUIRE(seventh_event->exclusive() != nullptr);
-    BOOST_CHECK_EQUAL(seventh_event->exclusive()->bytes(), std::string("\xf0\x47", 2));
-    BOOST_REQUIRE(seventh_event->exclusive()->mixer() != nullptr);
-    BOOST_CHECK_EQUAL(seventh_event->exclusive()->mixer()->param(), 3);
-    BOOST_CHECK_EQUAL(seventh_event->exclusive()->mixer()->pad_index(), 4);
-    BOOST_CHECK_EQUAL(seventh_event->exclusive()->mixer()->value(), 99);
+    BOOST_CHECK_EQUAL(seventh_event->id(), 0xa0);
+    BOOST_REQUIRE(seventh_event->poly_pressure() != nullptr);
+    BOOST_CHECK_EQUAL(seventh_event->poly_pressure()->note(), 64);
+    BOOST_CHECK_EQUAL(seventh_event->poly_pressure()->pressure(), 80);
 
-    auto* terminator = parsed_sequence->body()->events()->at(7).get();
+    auto* eighth_event = parsed_sequence->body()->events()->at(7).get();
+    BOOST_CHECK_EQUAL(eighth_event->id(), 0xf0);
+    BOOST_REQUIRE(eighth_event->exclusive() != nullptr);
+    BOOST_CHECK_EQUAL(eighth_event->exclusive()->bytes(), std::string("\x01\x02", 2));
+    BOOST_CHECK(eighth_event->exclusive()->_is_null_mixer());
+
+    auto* ninth_event = parsed_sequence->body()->events()->at(8).get();
+    BOOST_CHECK_EQUAL(ninth_event->id(), 0xf0);
+    BOOST_REQUIRE(ninth_event->exclusive() != nullptr);
+    BOOST_CHECK_EQUAL(ninth_event->exclusive()->bytes(), std::string("\xf0\x47", 2));
+    BOOST_REQUIRE(ninth_event->exclusive()->mixer() != nullptr);
+    BOOST_CHECK_EQUAL(ninth_event->exclusive()->mixer()->param(), 3);
+    BOOST_CHECK_EQUAL(ninth_event->exclusive()->mixer()->pad_index(), 4);
+    BOOST_CHECK_EQUAL(ninth_event->exclusive()->mixer()->value(), 99);
+
+    auto* terminator = parsed_sequence->body()->events()->at(9).get();
     BOOST_CHECK_EQUAL(terminator->tick(), 0xfffffU);
     BOOST_CHECK_EQUAL(terminator->terminator(), std::string(5, '\x00'));
 }

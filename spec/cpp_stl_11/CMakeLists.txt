@@ -184,6 +184,7 @@ set(RW_TEST_SOURCES
 	test_mpc2000mid_write.cpp
 	test_mpc2000xlall_write.cpp
 	test_mpc3000seq_write.cpp
+	test_mpc60all_write.cpp
 )
 
 add_executable (ks_tests

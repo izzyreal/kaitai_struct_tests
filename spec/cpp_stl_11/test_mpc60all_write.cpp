@@ -54,9 +54,10 @@ std::unique_ptr<mpc60all_write_t::event_t> make_sysex_event() {
 
 BOOST_AUTO_TEST_CASE(test_mpc60all_write_roundtrip) {
     mpc60all_write_t root(nullptr);
-    root.set_file_id(std::string("\x03", 1));
-    root.set_file_format_version(std::string("\x01", 1));
-    root.set_total_number_of_bytes_in_all_sequences(256);
+    try {
+        root.set_file_id(std::string("\x03", 1));
+        root.set_file_format_version(std::string("\x01", 1));
+        root.set_total_number_of_bytes_in_all_sequences(256);
 
     std::unique_ptr<std::vector<std::unique_ptr<mpc60all_write_t::sequence_t>>> sequences(
         new std::vector<std::unique_ptr<mpc60all_write_t::sequence_t>>());
@@ -64,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_mpc60all_write_roundtrip) {
 
     std::unique_ptr<mpc60all_write_t::sequence_header_t> sequence_header(new mpc60all_write_t::sequence_header_t(nullptr));
     sequence_header->set_sequence_number(0);
-    sequence_header->set_sequence_length_in_bytes(make_u3le(6));
+    sequence_header->set_sequence_length_in_bytes(make_u3le(1));
     sequence_header->set_offset_from_bottom_of_sequence_to_sequence_start(make_u3le(0));
     sequence_header->set_sequence_name(std::string("SEQ DEMO", 8) + std::string(8, '\x00'));
     sequence_header->set_loop_to_bar(mpc60all_write_t::OFF_ON_FALSE);
@@ -106,17 +107,28 @@ BOOST_AUTO_TEST_CASE(test_mpc60all_write_roundtrip) {
     sequence->set_events(std::move(events));
 
     sequences->push_back(std::move(sequence));
-    root.set_sequences(std::move(sequences));
+        root.set_sequences(std::move(sequences));
+    } catch (const std::exception& e) {
+        BOOST_FAIL(std::string("construction failed: ") + e.what());
+    }
 
     std::stringstream out(std::ios::in | std::ios::out | std::ios::binary);
     kaitai::kstream ks(&out);
-    root._set_io(&ks);
-    root._write();
+    try {
+        root._set_io(&ks);
+        root._write();
+    } catch (const std::exception& e) {
+        BOOST_FAIL(std::string("write failed: ") + e.what());
+    }
 
     std::stringstream in(out.str(), std::ios::in | std::ios::out | std::ios::binary);
     kaitai::kstream parsed_io(&in);
     mpc60all_write_t parsed(&parsed_io);
-    parsed._read();
+    try {
+        parsed._read();
+    } catch (const std::exception& e) {
+        BOOST_FAIL(std::string("reparse failed: ") + e.what());
+    }
 
     BOOST_CHECK_EQUAL(parsed.file_id(), std::string("\x03", 1));
     BOOST_CHECK_EQUAL(parsed.file_format_version(), std::string("\x01", 1));
@@ -125,7 +137,7 @@ BOOST_AUTO_TEST_CASE(test_mpc60all_write_roundtrip) {
 
     auto* parsed_sequence = parsed.sequences()->at(0).get();
     BOOST_REQUIRE(parsed_sequence->sequence_header() != nullptr);
-    BOOST_CHECK_EQUAL(parsed_sequence->sequence_header()->sequence_length_in_bytes()->value(), 6);
+    BOOST_CHECK_EQUAL(parsed_sequence->sequence_header()->sequence_length_in_bytes()->value(), 1);
     BOOST_CHECK_EQUAL(parsed_sequence->sequence_header()->sequence_name(), std::string("SEQ DEMO", 8) + std::string(8, '\x00'));
     BOOST_CHECK_EQUAL(parsed_sequence->sequence_header()->tempo(), 1200);
     BOOST_CHECK_EQUAL(parsed_sequence->sequence_header()->number_of_active_track_headers(), 3);
