@@ -1,6 +1,7 @@
 meta:
   id: mpc2000aps_write
   imports: mpc2000pgm_write
+  bit-endian: le
 
 enums:
   no_yes:
