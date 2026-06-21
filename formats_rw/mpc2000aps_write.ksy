@@ -168,8 +168,7 @@ seq:
   - id: magic
     contents: [0x0a, 0x05]
   - id: sound_count
-    type: u1
-  - size: 1
+    type: u2le
   - id: sound_names
     type: str
     encoding: ASCII
