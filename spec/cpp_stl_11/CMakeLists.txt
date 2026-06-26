@@ -208,6 +208,10 @@ set(RW_TEST_SOURCES
 	test_mpc60set_write.cpp
 )
 
+if (EXISTS "${KS_PATH}/process_coerce_switch.h")
+	list(APPEND RW_TEST_SOURCES test_process_coerce_switch.cpp)
+endif()
+
 add_executable (ks_tests
 	${RUNTIME_SOURCES}
 	${PREREQ_SOURCES}

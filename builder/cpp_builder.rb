@@ -66,7 +66,9 @@ class CppBuilder < PartialBuilder
     # NOTE: `sort!` is only meaningful for Ruby 2.7 and older, in Ruby 3.0 and
     # later `Dir.glob` already returns sorted output by default
     list = Dir.glob("#{@cpp_spec_dir}/**/*.cpp").sort! + Dir.glob("#{@src_dir}/*.cpp").sort!
-    list.map { |x|
+    list.each_with_object([]) { |x, acc|
+      next unless disposable_file_available?(x)
+
       r = File.absolute_path(x)
 
       # On Windows, filesystem is case insensitive, but our Set
@@ -76,8 +78,19 @@ class CppBuilder < PartialBuilder
         r.downcase!
       end
 
-      r
+      acc << r
     }
+  end
+
+  def disposable_file_available?(path)
+    return true unless path.start_with?(@cpp_spec_dir)
+
+    basename = File.basename(path, '.cpp')
+    return true unless basename.start_with?('test_')
+
+    stem = basename.delete_prefix('test_')
+    File.exist?(File.join(@src_dir, "#{stem}.h")) ||
+      File.exist?(File.join("#{@src_dir}_write", "#{stem}.h"))
   end
 
   def create_project(files)

@@ -130,49 +130,48 @@ BOOST_AUTO_TEST_CASE(test_mpc2000aps_write_roundtrip) {
     mpc2000aps_write_t root(nullptr);
     root.set_magic(std::string("\x0a\x05", 2));
     root.set_sound_count(2);
-    root.set__unnamed2(std::string(1, '\x00'));
 
     std::unique_ptr<std::vector<std::string>> sound_names(new std::vector<std::string>());
     sound_names->push_back(std::string("KICK_01", 7) + std::string(10, '\x00'));
     sound_names->push_back(std::string("SNARE_01", 8) + std::string(9, '\x00'));
     root.set_sound_names(std::move(sound_names));
 
-    root.set__unnamed4(std::string(1, '\x00'));
+    root.set__unnamed3(std::string(1, '\x00'));
     root.set_name(std::string("APS_SET_A", 9) + std::string(8, '\x00'));
-    root.set__unnamed6(std::string(1, '\x00'));
+    root.set__unnamed5(std::string(1, '\x00'));
 
     std::unique_ptr<mpc2000aps_write_t::global_parameters_t> global_parameters(new mpc2000aps_write_t::global_parameters_t(nullptr));
-    global_parameters->set__unnamed0(0);
     global_parameters->set_pad_to_internal_sound(mpc2000aps_write_t::NO_YES_TRUE);
-    global_parameters->set__unnamed2(0);
+    global_parameters->set__unnamed1(0);
     global_parameters->set_pad_assign(mpc2000aps_write_t::PAD_ASSIGN_PROGRAM);
-    global_parameters->set__unnamed4(0);
-    global_parameters->set_indiv_fx_source(mpc2000aps_write_t::MIX_SOURCE_PROGRAM);
     global_parameters->set_stereo_mix_source(mpc2000aps_write_t::MIX_SOURCE_DRUM);
-    global_parameters->set__unnamed7(0);
-    global_parameters->set_record_mix_changes(mpc2000aps_write_t::NO_YES_FALSE);
+    global_parameters->set_indiv_fx_source(mpc2000aps_write_t::MIX_SOURCE_PROGRAM);
+    global_parameters->set__unnamed3(0);
     global_parameters->set_copy_pgm_mix_to_drum(mpc2000aps_write_t::NO_YES_TRUE);
+    global_parameters->set__unnamed6(0);
+    global_parameters->set_record_mix_changes(mpc2000aps_write_t::NO_YES_FALSE);
+    global_parameters->set__unnamed8(0);
     global_parameters->set__unnamed10(0);
     global_parameters->set_fx_drum(3);
     global_parameters->set__unnamed12(std::string(1, '\x00'));
     global_parameters->set_master_level(100);
     root.set_global_parameters(std::move(global_parameters));
 
-    root.set__unnamed8(std::string(1, '\x00'));
+    root.set__unnamed7(std::string(1, '\x00'));
     std::unique_ptr<std::vector<int8_t>> master_pad_to_note_mapping(new std::vector<int8_t>());
     for (int i = 0; i < 64; ++i) {
         master_pad_to_note_mapping->push_back(static_cast<int8_t>(35 + (i % 8)));
     }
     root.set_master_pad_to_note_mapping(std::move(master_pad_to_note_mapping));
-    root.set__unnamed10(std::string(7, '\x00'));
+    root.set__unnamed9(std::string(7, '\x00'));
     root.set_drum1(make_drum(0, 64));
-    root.set__unnamed12(std::string(4, '\x00'));
+    root.set__unnamed11(std::string(4, '\x00'));
     root.set_drum2(make_drum(1, 72));
-    root.set__unnamed14(std::string(4, '\x00'));
+    root.set__unnamed13(std::string(4, '\x00'));
     root.set_drum3(make_drum(2, 80));
-    root.set__unnamed16(std::string(4, '\x00'));
+    root.set__unnamed15(std::string(4, '\x00'));
     root.set_drum4(make_drum(3, 88));
-    root.set__unnamed18(std::string(1, '\x00'));
+    root.set__unnamed17(std::string(1, '\x00'));
 
     std::unique_ptr<std::vector<std::unique_ptr<mpc2000aps_write_t::aps_program_meta_t>>> aps_programs(
         new std::vector<std::unique_ptr<mpc2000aps_write_t::aps_program_meta_t>>());
