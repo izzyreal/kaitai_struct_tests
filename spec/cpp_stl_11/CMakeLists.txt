@@ -194,6 +194,7 @@ set(RW_TEST_SOURCES
 	test_params_stateful_switch_write.cpp
 	test_io_lookahead_switch_write.cpp
 	test_running_status_write.cpp
+	test_standard_midi_file_with_running_status_write.cpp
 	test_mpc2000snd_write.cpp
 	test_mpc2000pgm_write.cpp
 	test_mpc2000aps_write.cpp
