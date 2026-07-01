@@ -216,6 +216,7 @@ types:
     seq:
       - id: controller
         type: u1
+        doc: 0xFF is used for an unassigned footswitch controller.
       - id: function
         type: u1
 
@@ -514,9 +515,7 @@ types:
         type: bar(_index)
         repeat: expr
         repeat-expr: bar_count
-      - type: bar(_index)
-        repeat: expr
-        repeat-expr: 999 - bar_count
+      - size: 4 * (999 - bar_count)
       - size: 865
       - id: events
         type: event

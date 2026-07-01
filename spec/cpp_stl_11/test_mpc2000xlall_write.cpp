@@ -51,8 +51,8 @@ std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::midi_switch_t>
         new std::vector<std::unique_ptr<mpc2000xlall_write_t::midi_switch_t>>());
     for (int i = 0; i < 4; ++i) {
         std::unique_ptr<mpc2000xlall_write_t::midi_switch_t> sw(new mpc2000xlall_write_t::midi_switch_t(nullptr));
-        sw->set_controller(static_cast<uint8_t>(64 + i));
-        sw->set_function(0);
+        sw->set_controller(i == 0 ? static_cast<uint8_t>(0xff) : static_cast<uint8_t>(63 + i));
+        sw->set_function(static_cast<uint8_t>(i));
         switches->push_back(std::move(sw));
     }
     return switches;
@@ -350,12 +350,7 @@ std::unique_ptr<mpc2000xlall_write_t::sequence_body_t> make_minimal_sequence_bod
     }
     body->set_bars(std::move(bars));
 
-    std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>> remaining_bars(
-        new std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>());
-    for (int i = bar_count; i < 999; ++i) {
-        remaining_bars->push_back(make_bar(i, last_tick));
-    }
-    body->set__unnamed18(std::move(remaining_bars));
+    body->set__unnamed18(std::string(4 * (999 - bar_count), '\x00'));
     body->set__unnamed19(std::string(865, '\x00'));
 
     std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>> events(
@@ -539,12 +534,7 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     bars->push_back(make_bar(0, 96));
     body->set_bars(std::move(bars));
 
-    std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>> remaining_bars(
-        new std::vector<std::unique_ptr<mpc2000xlall_write_t::bar_t>>());
-    for (int i = 1; i < 999; ++i) {
-        remaining_bars->push_back(make_bar(i, 96));
-    }
-    body->set__unnamed18(std::move(remaining_bars));
+    body->set__unnamed18(std::string(4 * (999 - 1), '\x00'));
     body->set__unnamed19(std::string(865, '\x00'));
 
     std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::event_t>>> events(
@@ -595,6 +585,11 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_CHECK_EQUAL(parsed.sequencer()->master_tempo(), 1200);
     BOOST_REQUIRE_EQUAL(parsed.locations()->size(), 9U);
     BOOST_CHECK_EQUAL(parsed.locations()->at(0)->bar(), 0);
+    BOOST_REQUIRE_EQUAL(parsed.misc()->midi_switch()->size(), 4U);
+    BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(0)->controller(), 0xff);
+    BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(0)->function(), 0);
+    BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(1)->controller(), 64);
+    BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(1)->function(), 1);
     BOOST_REQUIRE_EQUAL(parsed.sequences_metas()->size(), 99U);
     BOOST_CHECK_EQUAL(parsed.sequences_metas()->at(0)->is_used(), 1);
     BOOST_REQUIRE_EQUAL(parsed.songs()->size(), 20U);
