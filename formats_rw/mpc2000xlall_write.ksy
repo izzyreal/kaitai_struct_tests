@@ -246,7 +246,7 @@ types:
         type: str
         encoding: ASCII
         size: 16
-      - id: is_used
+      - id: last_event_index
         type: u2le
 
   song_step:

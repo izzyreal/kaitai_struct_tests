@@ -81,7 +81,7 @@ std::unique_ptr<std::vector<std::unique_ptr<mpc2000xlall_write_t::sequence_meta_
             name += std::string(16 - name.size(), '\x00');
         }
         meta->set_name(name);
-        meta->set_is_used(i == 0 ? 1 : 0);
+        meta->set_last_event_index(i == 0 ? 641 : 0);
         metas->push_back(std::move(meta));
     }
     return metas;
@@ -562,7 +562,14 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
 
     std::unique_ptr<mpc2000xlall_write_t::sequence_t> empty_sequence(new mpc2000xlall_write_t::sequence_t(nullptr));
     empty_sequence->set_name_part_1("");
+    empty_sequence->set_name_part_2("");
     sequences->push_back(std::move(empty_sequence));
+
+    std::unique_ptr<mpc2000xlall_write_t::sequence_t> trailing_sequence(new mpc2000xlall_write_t::sequence_t(nullptr));
+    trailing_sequence->set_name_part_1("AFTER");
+    trailing_sequence->set_name_part_2("");
+    trailing_sequence->set_body(make_minimal_sequence_body(3, 1, 96));
+    sequences->push_back(std::move(trailing_sequence));
 
     root.set_sequences(std::move(sequences));
 
@@ -591,11 +598,11 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(1)->controller(), 64);
     BOOST_CHECK_EQUAL(parsed.misc()->midi_switch()->at(1)->function(), 1);
     BOOST_REQUIRE_EQUAL(parsed.sequences_metas()->size(), 99U);
-    BOOST_CHECK_EQUAL(parsed.sequences_metas()->at(0)->is_used(), 1);
+    BOOST_CHECK_EQUAL(parsed.sequences_metas()->at(0)->last_event_index(), 641);
     BOOST_REQUIRE_EQUAL(parsed.songs()->size(), 20U);
     BOOST_CHECK(parsed.songs()->at(0)->is_used());
 
-    BOOST_REQUIRE_EQUAL(parsed.sequences()->size(), 3U);
+    BOOST_REQUIRE_EQUAL(parsed.sequences()->size(), 4U);
     auto* parsed_sequence = parsed.sequences()->at(0).get();
     BOOST_CHECK_EQUAL(parsed_sequence->name_part_1(), "SEQPART1");
     BOOST_CHECK_EQUAL(parsed_sequence->name_part_2(), "SEQPART2");
@@ -635,6 +642,14 @@ BOOST_AUTO_TEST_CASE(test_mpc2000xlall_write_roundtrip) {
     BOOST_CHECK_EQUAL(parsed_empty_sequence->name_part_1(), "");
     BOOST_CHECK(parsed_empty_sequence->_is_null_name_part_2());
     BOOST_CHECK(parsed_empty_sequence->_is_null_body());
+
+    auto* parsed_trailing_sequence = parsed.sequences()->at(3).get();
+    BOOST_CHECK_EQUAL(parsed_trailing_sequence->name_part_1(), "AFTER");
+    BOOST_CHECK_EQUAL(parsed_trailing_sequence->name_part_2(), "");
+    BOOST_CHECK(!parsed_trailing_sequence->_is_null_name_part_2());
+    BOOST_REQUIRE(parsed_trailing_sequence->body() != nullptr);
+    BOOST_CHECK_EQUAL(parsed_trailing_sequence->body()->index(), 3);
+    BOOST_CHECK_EQUAL(parsed_trailing_sequence->body()->bar_count(), 1);
 
     auto* first_event = parsed_sequence->body()->events()->at(0).get();
     BOOST_CHECK_EQUAL(first_event->tick(), 0U);
