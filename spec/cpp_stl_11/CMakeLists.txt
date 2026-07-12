@@ -212,6 +212,7 @@ set(RW_TEST_SOURCES
 	test_mpc60seq_write.cpp
 	test_mpc60set_write.cpp
 	test_mpc60_v2_probe.cpp
+	test_mpc60_v3_probe.cpp
 )
 
 if (EXISTS "${KS_PATH}/process_coerce_switch.h")
