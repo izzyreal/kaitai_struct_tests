@@ -4,22 +4,79 @@ meta:
 
 seq:
   - id: file_id
-    contents: [0x03]
+    contents: [0x04]
   - id: file_format_version
-    contents: [0x01]
+    type: u1
+    enum: all_wrapper_version
   - id: total_number_of_bytes_in_all_sequences
     type: u4le
   - id: sequences
     type: sequence
     repeat: until
-    repeat-until: _io.pos + 6 >= total_number_of_bytes_in_all_sequences
+    repeat-until: _io.pos - 6 >= total_number_of_bytes_in_all_sequences - 1
+  - id: sequences_terminator
+    contents: [0xFF]
+  - id: songs
+    type: song
+    repeat: until
+    repeat-until: _.step_count == 0
 
 enums:
+  # Observed status:
+  #   - MPC60 SCSI v2.14 emits 0x02
+  #   - earlier plain MPC60 v2.12 evidence points to 0x03
+  # This appears to track firmware provenance rather than a strict model split.
+  all_wrapper_version:
+    0x02: v2
+    0x03: v3
   off_on:
     0: off
     1: on
 
 types:
+  song_step:
+    seq:
+      - id: sequence_number
+        type: u1
+      - id: repeats
+        type: u1
+
+  # Observed on MPC60 SCSI v2.14:
+  #   song records are followed by a single trailing 0x00 byte.
+  # We model that final byte as a sentinel song entry with step_count == 0.
+  song:
+    seq:
+      - id: step_count
+        type: u1
+      - id: body
+        type:
+          switch-on: step_count
+          cases:
+            '0': empty_song
+            _: song_body
+
+  empty_song:
+    seq: []
+
+  song_body:
+    seq:
+      - id: song_number
+        type: u1
+      - id: reserved_1
+        contents: [0x00]
+      - id: reserved_2
+        contents: [0x01]
+      - id: song_name
+        type: str
+        encoding: ASCII
+        size: 16
+      - id: reserved_3
+        contents: [0x00, 0x00, 0x00, 0x00, 0x00]
+      - id: steps
+        type: song_step
+        repeat: expr
+        repeat-expr: _parent.step_count
+
   smpte_offset:
     seq:
       - id: hundredth_frames
