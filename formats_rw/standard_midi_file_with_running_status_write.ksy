@@ -39,12 +39,12 @@ types:
   track_events:
     seq:
       - id: event
-        type: 'track_event(_index != 0 ? event[_index - 1].event_type : 0xFF)'
+        type: 'track_event(_index != 0 ? event[_index - 1].effective_status : 0xFF)'
         repeat: eos
 
   track_event:
     params:
-      - id: previous_event_type
+      - id: previous_status
         type: u1
     seq:
       - id: v_time
@@ -54,10 +54,10 @@ types:
         if: not using_running_status
       - id: meta_event_body
         type: meta_event_body
-        if: event_header == 0xff
+        if: not using_running_status and event_header == 0xff
       - id: sysex_body
         type: sysex_event_body
-        if: event_header == 0xf0
+        if: not using_running_status and event_header == 0xf0
       - id: event_body
         type:
           switch-on: event_type
@@ -76,9 +76,11 @@ types:
         pos: _io.pos
         type: u1
       event_type:
-        value: 'using_running_status ? previous_event_type : event_header & 0xf0'
+        value: effective_status & 0xf0
+      effective_status:
+        value: 'using_running_status ? previous_status : event_header'
       channel:
-        value: event_header & 0xf
+        value: effective_status & 0xf
         if: event_type != 0xf0
 
   meta_event_body:

@@ -34,9 +34,15 @@ void append_meta_event(std::string& out, uint8_t delta, uint8_t meta_type, const
     out.append(body);
 }
 
-void append_note_on(std::string& out, uint8_t delta, uint8_t note, uint8_t velocity) {
+void append_note_on(std::string& out, uint8_t delta, uint8_t status, uint8_t note, uint8_t velocity) {
     append_delta(out, delta);
-    out.push_back(static_cast<char>(0x90));
+    out.push_back(static_cast<char>(status));
+    out.push_back(static_cast<char>(note));
+    out.push_back(static_cast<char>(velocity));
+}
+
+void append_running_note_on(std::string& out, uint8_t delta, uint8_t note, uint8_t velocity) {
+    append_delta(out, delta);
     out.push_back(static_cast<char>(note));
     out.push_back(static_cast<char>(velocity));
 }
@@ -46,8 +52,8 @@ std::string build_sample_midi() {
     append_meta_event(track, 0x00, 0x04, "        ");
     append_meta_event(track, 0x00, 0x01, "TRACK DATA:00E1006403  020102   ");
     append_meta_event(track, 0x00, 0x03, "TRACKNAME1234567");
-    append_note_on(track, 0x00, 0x25, 0x7F);
-    append_note_on(track, 0x0A, 0x25, 0x00);
+    append_note_on(track, 0x00, 0x95, 0x25, 0x7F);
+    append_running_note_on(track, 0x0A, 0x25, 0x00);
     append_meta_event(track, 0x00, 0x2F, "");
 
     std::string file;
@@ -107,6 +113,7 @@ BOOST_AUTO_TEST_CASE(test_standard_midi_file_with_running_status_write_parse_rew
 
     auto* note_on = track->events()->event()->at(3).get();
     BOOST_CHECK_EQUAL(note_on->event_type(), 0x90);
+    BOOST_CHECK_EQUAL(note_on->channel(), 5);
     auto* note_on_body =
         dynamic_cast<standard_midi_file_with_running_status_write_t::note_on_event_t*>(note_on->event_body());
     BOOST_REQUIRE(note_on_body != nullptr);
@@ -115,6 +122,10 @@ BOOST_AUTO_TEST_CASE(test_standard_midi_file_with_running_status_write_parse_rew
 
     auto* note_off = track->events()->event()->at(4).get();
     BOOST_CHECK_EQUAL(note_off->event_type(), 0x90);
+    BOOST_CHECK(note_off->using_running_status());
+    BOOST_CHECK_EQUAL(note_off->channel(), 5);
+    BOOST_CHECK(note_off->meta_event_body() == nullptr);
+    BOOST_CHECK(note_off->sysex_body() == nullptr);
     auto* note_off_body =
         dynamic_cast<standard_midi_file_with_running_status_write_t::note_on_event_t*>(note_off->event_body());
     BOOST_REQUIRE(note_off_body != nullptr);
